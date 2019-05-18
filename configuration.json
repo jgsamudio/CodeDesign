@@ -1,0 +1,18 @@
+{
+  "authorName": "Jonathan Samudio",
+  "companyName": "JustBinary",
+  "projectName": "CodeDesign",
+  "language": "swift",
+  "verbose": true,
+  "namingConventions":[
+    "removePluralNamesForModels",
+    "camelCaseNames"
+  ],
+  "directoryInfo": {
+    "templateDirectory": "./templates/",
+    "localJSONDirectory":[{
+      "inputDirectory":"./SketchJson/",
+      "outputDirectory":"./SketchOutput/"
+    }]
+  }
+}
