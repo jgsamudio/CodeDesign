@@ -5,7 +5,6 @@
 //  Created by Jonathan Samudio on 5/20/19.
 //  Copyright © 2019 JustBinary. All rights reserved.
 //
-
 import Foundation
 import Cocoa
 
@@ -24,7 +23,7 @@ enum KeyboardCommand: CaseIterable {
     func commandKeys() -> Set<Int> {
         switch self {
         case .centerCanvas:
-            return [18, 1048848]
+            return [18, Int(NSEvent.ModifierFlags.command.rawValue)]
         }
     }
 }
@@ -43,26 +42,26 @@ class CommandHandler {
     
     private var pressedKeys = Set<Int>()
     
-    func keyDown(code: Int, modifierFlag: Int) {
+    func keyDown(code: Int, modifierFlags: NSEvent.ModifierFlags) {
+        let intersectedModifierFlags = modifierFlags.intersection(.deviceIndependentFlagsMask)
+        print(pressedKeys)
+        pressedKeys.insert(Int(intersectedModifierFlags.rawValue))
         pressedKeys.insert(code)
-        pressedKeys.insert(modifierFlag)
         checkForCommand()
     }
     
-    func keyUp(code: Int, modifierFlag: Int) {
+    func keyUp(code: Int, modifierFlags: NSEvent.ModifierFlags) {
+        let intersectedModifierFlags = modifierFlags.intersection(.deviceIndependentFlagsMask)
+        pressedKeys.remove(Int(intersectedModifierFlags.rawValue))
         pressedKeys.remove(code)
-        pressedKeys.remove(modifierFlag)
+        print(pressedKeys)
         checkForCommand()
-    }
-    
-    func isKeyDown(code: Int, modifierFlag: Int) -> Bool {
-        return pressedKeys.contains(code) && pressedKeys.contains(modifierFlag)
     }
     
 }
 
 private extension CommandHandler {
-
+    
     func checkForCommand() {
         if let command = KeyboardCommand.command(from: pressedKeys) {
             delegate?.handleKeyboardCommand(command)
@@ -74,10 +73,6 @@ private extension CommandHandler {
 class CanvasViewController: NSViewController {
     
     // MARK: - Public Variables
-
-    override var acceptsFirstResponder: Bool {
-        return true
-    }
     
     /// Size of the canvas.
     var canvasSize: NSSize = NSSize(width: 5000, height: 5000) {
@@ -119,29 +114,6 @@ class CanvasViewController: NSViewController {
         scrollTo(view: sampleView)
     }
     
-    override func becomeFirstResponder() -> Bool {
-        return true
-    }
-    
-    override func resignFirstResponder() -> Bool {
-        return true
-    }
-    
-    override func keyDown(with event: NSEvent) {
-        guard !commandHandler.isKeyDown(code: Int(event.keyCode),
-                                        modifierFlag: Int(event.modifierFlags.rawValue)) else {
-            return
-        }
-        commandHandler.keyDown(code: Int(event.keyCode), modifierFlag: Int(event.modifierFlags.rawValue))
-    }
-    
-    override func keyUp(with event: NSEvent) {
-        guard commandHandler.isKeyDown(code: Int(event.keyCode), modifierFlag: Int(event.modifierFlags.rawValue)) else {
-            return
-        }
-        commandHandler.keyUp(code: Int(event.keyCode), modifierFlag: Int(event.modifierFlags.rawValue))
-    }
-    
     // MARK: - Public Functions
     
     func centerScrollView() {
@@ -160,6 +132,7 @@ class CanvasViewController: NSViewController {
     }
 }
 
+// MARK: - Private Functions
 private extension CanvasViewController {
     
     func setupDesign() {
@@ -167,8 +140,7 @@ private extension CanvasViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = true
-
-        // http://www.knowstack.com/swift-nslayoutconstraint-programatically-sample-code/
+        
         view.addConstraint(NSLayoutConstraint(item: view,
                                               attribute: .top,
                                               relatedBy: .equal,
@@ -199,7 +171,32 @@ private extension CanvasViewController {
                                               constant: 0))
         scrollView.contentView.documentView = NSView(frame: NSRect(origin: CGPoint.zero, size: canvasSize))
     }
+
+}
+
+// MARK: - Keyboard Input
+extension CanvasViewController {
     
+    override var acceptsFirstResponder: Bool {
+        return true
+    }
+    
+    override func becomeFirstResponder() -> Bool {
+        return true
+    }
+    
+    override func resignFirstResponder() -> Bool {
+        return true
+    }
+    
+    override func keyDown(with event: NSEvent) {
+        commandHandler.keyDown(code: Int(event.keyCode), modifierFlags: event.modifierFlags)
+    }
+    
+    override func keyUp(with event: NSEvent) {
+        commandHandler.keyUp(code: Int(event.keyCode), modifierFlags: event.modifierFlags)
+    }
+ 
     func setupKeyboardEvents() {
         // More information: http://blog.ericd.net/2016/10/10/ios-to-macos-reading-keyboard-input/
         NSEvent.addLocalMonitorForEvents(matching: .keyUp) { [weak self] (event) -> NSEvent? in
@@ -218,8 +215,10 @@ private extension CanvasViewController {
             return strongSelf.commandHandler.commandActive ? nil : event
         }
     }
+    
 }
 
+// MARK: - CommandHandlerDelegate
 extension CanvasViewController: CommandHandlerDelegate {
     
     func handleKeyboardCommand(_ command: KeyboardCommand) {

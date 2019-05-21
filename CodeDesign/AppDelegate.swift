@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  CodeDesign
 //
-//  Created by Jonathan Samudio on 5/18/19.
-//  Copyright © 2019 JustBinary. All rights reserved.
+//  Created by Jonathan Samudio on 5/21/19.
+//  Copyright © 2019 Prolific Interactive. All rights reserved.
 //
 
 import Cocoa
