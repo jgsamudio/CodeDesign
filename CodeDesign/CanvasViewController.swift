@@ -168,6 +168,7 @@ private extension CanvasViewController {
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = true
 
+        // http://www.knowstack.com/swift-nslayoutconstraint-programatically-sample-code/
         view.addConstraint(NSLayoutConstraint(item: view,
                                               attribute: .top,
                                               relatedBy: .equal,
