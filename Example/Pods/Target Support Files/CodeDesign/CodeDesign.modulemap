@@ -1,0 +1,6 @@
+framework module CodeDesign {
+  umbrella header "CodeDesign-umbrella.h"
+
+  export *
+  module * { export * }
+}

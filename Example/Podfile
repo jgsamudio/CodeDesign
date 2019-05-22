@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'CodeDesign_Example' do
+  pod 'CodeDesign', :path => '../'
+
+  target 'CodeDesign_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

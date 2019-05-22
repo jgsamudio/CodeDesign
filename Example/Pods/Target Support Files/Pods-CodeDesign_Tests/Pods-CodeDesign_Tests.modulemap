@@ -1,0 +1,6 @@
+framework module Pods_CodeDesign_Tests {
+  umbrella header "Pods-CodeDesign_Tests-umbrella.h"
+
+  export *
+  module * { export * }
+}
