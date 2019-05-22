@@ -99,6 +99,8 @@ private extension CommandHandler {
 
 class CanvasClipView: NSClipView {
     
+    var blockScrolling = false
+    
     private var centerClipView = false
     private var scrollPoint: NSPoint?
     private var scrollingLength: CGFloat = 0
@@ -136,7 +138,9 @@ class CanvasClipView: NSClipView {
     override func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
         var rect = super.constrainBoundsRect(proposedBounds)
         
-        if centerClipView {
+        if blockScrolling {
+            rect = bounds
+        } else if centerClipView {
             rect.origin.x = (documentRect.width - rect.width) / 2
             rect.origin.y = (documentRect.height - rect.height) / 2
         } else if let scrollPoint = scrollPoint {
@@ -227,6 +231,7 @@ class CanvasViewController: NSViewController {
         super.viewDidLoad()
         setupDesign()
         setupKeyboardEvents()
+        setupMouseEvents()
         
         // TODO: Remove from view did load.
         let width: CGFloat = 375
@@ -326,6 +331,12 @@ extension CanvasViewController {
     override func keyUp(with event: NSEvent) {
         commandHandler.keyUp(code: Int(event.keyCode), modifierFlags: event.modifierFlags)
     }
+    
+    override func flagsChanged(with event: NSEvent) {
+        if event.modifierFlags.rawValue == 256 {
+            canvasClipView.blockScrolling = false
+        }
+    }
  
     private func setupKeyboardEvents() {
         // More information: http://blog.ericd.net/2016/10/10/ios-to-macos-reading-keyboard-input/
@@ -343,6 +354,14 @@ extension CanvasViewController {
             }
             strongSelf.keyDown(with: event)
             return strongSelf.commandHandler.commandActive ? nil : event
+        }
+        
+        NSEvent.addLocalMonitorForEvents(matching: .flagsChanged) { [weak self] (event) -> NSEvent? in
+            guard let strongSelf = self else {
+                return event
+            }
+            strongSelf.flagsChanged(with: event)
+            return event
         }
     }
     
@@ -365,6 +384,33 @@ extension CanvasViewController {
                     return
                 }
             }
+        }
+    }
+    
+    override func scrollWheel(with event: NSEvent) {
+        // TODO: Update Command Handler to handle modifier flags.
+        let intersectedModifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        if Int(intersectedModifierFlags.rawValue) == Int(NSEvent.ModifierFlags.command.rawValue) {
+            canvasClipView.blockScrolling = true
+            let magnificationIncrement: CGFloat = 0.1
+            let deltaThreshold: CGFloat = 5
+            if event.deltaY > deltaThreshold {
+                canvasClipView.blockScrolling = false
+                scrollView.magnification -= magnificationIncrement
+            } else if event.deltaY < -deltaThreshold {
+                canvasClipView.blockScrolling = false
+                scrollView.magnification += magnificationIncrement
+            }
+        }
+    }
+    
+    func setupMouseEvents() {
+        NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [weak self] (event) -> NSEvent? in
+            guard let strongSelf = self else {
+                return event
+            }
+            strongSelf.scrollWheel(with: event)
+            return event
         }
     }
     
