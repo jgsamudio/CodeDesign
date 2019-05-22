@@ -12,7 +12,6 @@ enum KeyboardCommand: CaseIterable {
     case centerCanvas
     case increaseMagnification
     case decreaseMagnification
-    case cmdKey
     
     /// Returns a KeyboardCommand if one is found in the given set.
     ///
@@ -36,8 +35,6 @@ enum KeyboardCommand: CaseIterable {
             return [24, Int(NSEvent.ModifierFlags.command.rawValue)]
         case .decreaseMagnification:
             return [27, Int(NSEvent.ModifierFlags.command.rawValue)]
-        case .cmdKey:
-            return [19, Int(NSEvent.ModifierFlags.command.rawValue)]
         }
     }
 }
@@ -49,8 +46,6 @@ protocol CommandHandlerDelegate: class {
     /// - Parameter command: KeyboardCommand type identified as received.
     func handleKeyboardCommand(_ command: KeyboardCommand)
     
-    /// Called when all commands are removed.
-    func handleAllCommandsRemoved()
 }
 
 class CommandHandler {
@@ -97,31 +92,12 @@ private extension CommandHandler {
     func checkForCommand() {
         if let command = KeyboardCommand.command(from: pressedKeys) {
             delegate?.handleKeyboardCommand(command)
-        } else if pressedKeys.isEmpty {
-            delegate?.handleAllCommandsRemoved()
         }
     }
     
-}
-
-enum ScrollDirection {
-    case up
-    case down
-}
-
-protocol CanvasClipViewDelegate: class {
-    func scrollWheelScrolled(direction: ScrollDirection)
 }
 
 class CanvasClipView: NSClipView {
-    
-    weak var delegate: CanvasClipViewDelegate?
-    
-    var blockScrolling = false {
-        didSet {
-//            scrollingLength = 0
-        }
-    }
     
     private var centerClipView = false
     private var scrollPoint: NSPoint?
@@ -159,13 +135,8 @@ class CanvasClipView: NSClipView {
     
     override func constrainBoundsRect(_ proposedBounds: NSRect) -> NSRect {
         var rect = super.constrainBoundsRect(proposedBounds)
-        print(bounds)
-        print(rect)
-        if blockScrolling {
-            scrollingLength += (proposedBounds.origin.y > bounds.origin.y) ? 1 : -1
-            rect = bounds
-            checkScrollWheel()
-        } else if centerClipView {
+        
+        if centerClipView {
             rect.origin.x = (documentRect.width - rect.width) / 2
             rect.origin.y = (documentRect.height - rect.height) / 2
         } else if let scrollPoint = scrollPoint {
@@ -201,19 +172,6 @@ private extension CanvasClipView {
         scrollPoint = nil
     }
     
-    func checkScrollWheel() {
-        print(scrollingLength)
-        if scrollingLength > 10 {
-            blockScrolling = false
-            scrollingLength = 0
-            delegate?.scrollWheelScrolled(direction: .up)
-        } else if scrollingLength < -10 {
-            blockScrolling = false
-            scrollingLength = 0
-            delegate?.scrollWheelScrolled(direction: .down)
-        }
-    }
-    
 }
 
 protocol CanvasViewControllerDelegate: class {
@@ -246,7 +204,6 @@ class CanvasViewController: NSViewController {
     
     private lazy var canvasClipView: CanvasClipView = {
         let clipView = CanvasClipView(canvasSize: canvasSize)
-        clipView.delegate = self
         return clipView
     }()
     
@@ -261,6 +218,8 @@ class CanvasViewController: NSViewController {
         let yOrigin = (scrollView.contentView.documentRect.height) / 2
         return NSPoint(x: xOrigin, y: yOrigin)
     }
+    
+    private let magnificationIncrement: CGFloat = 0.25
     
     // MARK - Overriden Functions
     
@@ -396,8 +355,10 @@ extension CanvasViewController {
         if let documentView = canvasClipView.documentView {
             // TODO: Consider saving to memory for larger subview trees.
             for subview in documentView.subviews.reversed() {
-                let xClickPoint = event.locationInWindow.x + canvasClipView.documentVisibleRect.origin.x
-                let yClickPoint = event.locationInWindow.y + canvasClipView.documentVisibleRect.origin.y
+                let xClickPoint = (event.locationInWindow.x / scrollView.magnification) +
+                    canvasClipView.documentVisibleRect.origin.x
+                let yClickPoint = (event.locationInWindow.y / scrollView.magnification) +
+                    canvasClipView.documentVisibleRect.origin.y
                 if subview.frame.contains(CGPoint(x: xClickPoint, y: yClickPoint)) {
                     print(subview.frame)
                     delegate?.didSelect(view: subview)
@@ -418,31 +379,13 @@ extension CanvasViewController: CommandHandlerDelegate {
             // TODO: Animate and update the scroll indicators.
             centerScrollView()
         case .increaseMagnification:
-            scrollView.magnification += 0.25
+            scrollView.magnification += magnificationIncrement
             delegate?.didZoomIn(magnification: scrollView.magnification)
         case .decreaseMagnification:
-            scrollView.magnification -= 0.25
+            scrollView.magnification -= magnificationIncrement
             delegate?.didZoomOut(magnification: scrollView.magnification)
-        case .cmdKey:
-            canvasClipView.blockScrolling = true
         }
-//        print(scrollView.magnification)
+        print(scrollView.magnification)
     }
     
-    func handleAllCommandsRemoved() {
-        canvasClipView.blockScrolling = false
-    }
-}
-
-extension CanvasViewController: CanvasClipViewDelegate {
-    
-    func scrollWheelScrolled(direction: ScrollDirection) {
-        switch direction {
-        case .up:
-            scrollView.magnification += 0.25
-        case .down:
-            scrollView.magnification -= 0.25
-        }
-        print("MAGNIFICATION")
-    }
 }
