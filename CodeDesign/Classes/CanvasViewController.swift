@@ -10,6 +10,8 @@ import Cocoa
 
 enum KeyboardCommand: CaseIterable {
     case centerCanvas
+    case increaseMagnification
+    case decreaseMagnification
     
     /// Returns a KeyboardCommand if one is found in the given set.
     ///
@@ -29,6 +31,10 @@ enum KeyboardCommand: CaseIterable {
         switch self {
         case .centerCanvas:
             return [18, Int(NSEvent.ModifierFlags.command.rawValue)]
+        case .increaseMagnification:
+            return [24, Int(NSEvent.ModifierFlags.command.rawValue)]
+        case .decreaseMagnification:
+            return [27, Int(NSEvent.ModifierFlags.command.rawValue)]
         }
     }
 }
@@ -165,6 +171,12 @@ private extension CanvasClipView {
     }
 }
 
+protocol CanvasViewControllerDelegate: class {
+    func didZoomIn(magnification: CGFloat)
+    func didZoomOut(magnification: CGFloat)
+    func didSelect(view: NSView)
+}
+
 class CanvasViewController: NSViewController {
     
     // MARK: - Public Variables
@@ -176,10 +188,17 @@ class CanvasViewController: NSViewController {
         }
     }
     
+    weak var delegate: CanvasViewControllerDelegate?
+    
     // MARK: - Private Variables
     
     // Infinte ScrollView: https://blog.helftone.com/infinite-nsscrollview/
-    private let scrollView = NSScrollView(frame: NSRect.zero)
+    private lazy var scrollView: NSScrollView = {
+        let scrollView = NSScrollView(frame: NSRect.zero)
+        scrollView.allowsMagnification = true
+        return scrollView
+    }()
+    
     private lazy var canvasClipView: CanvasClipView = CanvasClipView(canvasSize: canvasSize)
     
     private lazy var commandHandler: CommandHandler = {
@@ -208,7 +227,14 @@ class CanvasViewController: NSViewController {
                                               width: width, height: height))
         sampleView.wantsLayer = true
         sampleView.layer?.backgroundColor = CGColor.white
+        
+        let sampleSubView = NSView(frame: NSRect(x: centerPoint.x-50, y: centerPoint.y-50,
+                                              width: 100, height: 100))
+        sampleSubView.wantsLayer = true
+        sampleSubView.layer?.backgroundColor = CGColor.black
+        
         add(view: sampleView)
+        add(view: sampleSubView)
         
         canvasClipView.scrollToCenter(of: sampleView)
     }
@@ -314,6 +340,26 @@ extension CanvasViewController {
     
 }
 
+// MARK: - Mouse Input
+extension CanvasViewController {
+ 
+    override func mouseUp(with event: NSEvent) {
+        if let documentView = canvasClipView.documentView {
+            // TODO: Consider saving to memory for larger subview trees.
+            for subview in documentView.subviews.reversed() {
+                let xClickPoint = event.locationInWindow.x + canvasClipView.documentVisibleRect.origin.x
+                let yClickPoint = event.locationInWindow.y + canvasClipView.documentVisibleRect.origin.y
+                if subview.frame.contains(CGPoint(x: xClickPoint, y: yClickPoint)) {
+                    print(subview.frame)
+                    delegate?.didSelect(view: subview)
+                    return
+                }
+            }
+        }
+    }
+    
+}
+
 // MARK: - CommandHandlerDelegate
 extension CanvasViewController: CommandHandlerDelegate {
     
@@ -322,6 +368,13 @@ extension CanvasViewController: CommandHandlerDelegate {
         case .centerCanvas:
             // TODO: Animate and update the scroll indicators.
             centerScrollView()
+        case .increaseMagnification:
+            scrollView.magnification += 0.25
+            delegate?.didZoomIn(magnification: scrollView.magnification)
+        case .decreaseMagnification:
+            scrollView.magnification -= 0.25
+            delegate?.didZoomOut(magnification: scrollView.magnification)
         }
+        print(scrollView.magnification)
     }
 }
