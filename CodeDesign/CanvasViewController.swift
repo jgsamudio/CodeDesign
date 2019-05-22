@@ -202,7 +202,10 @@ class CanvasViewController: NSViewController {
         setupKeyboardEvents()
         
         // TODO: Remove from view did load.
-        let sampleView = NSView(frame: NSRect(x: centerPoint.x-100, y: centerPoint.y-100, width: 200, height: 200))
+        let width: CGFloat = 375
+        let height: CGFloat = 667
+        let sampleView = NSView(frame: NSRect(x: centerPoint.x-(width/2), y: centerPoint.y-(height/2),
+                                              width: width, height: height))
         sampleView.wantsLayer = true
         sampleView.layer?.backgroundColor = CGColor.white
         add(view: sampleView)
