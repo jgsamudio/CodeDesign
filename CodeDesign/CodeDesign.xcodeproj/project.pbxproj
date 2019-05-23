@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2012C9D12295D9A700BE1BF9 /* .gitkeep in Resources */ = {isa = PBXBuildFile; fileRef = 2012C9CF2295D9A600BE1BF9 /* .gitkeep */; };
-		2012C9D22295D9A700BE1BF9 /* CanvasViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2012C9D02295D9A600BE1BF9 /* CanvasViewController.swift */; };
+		2012C9D22295D9A700BE1BF9 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2012C9D02295D9A600BE1BF9 /* CanvasView.swift */; };
 		2081D26722948C000005BB67 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2081D26622948C000005BB67 /* AppDelegate.swift */; };
 		2081D26922948C000005BB67 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2081D26822948C000005BB67 /* ViewController.swift */; };
 		2081D26B22948C010005BB67 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2081D26A22948C010005BB67 /* Assets.xcassets */; };
@@ -36,7 +36,7 @@
 
 /* Begin PBXFileReference section */
 		2012C9CF2295D9A600BE1BF9 /* .gitkeep */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitkeep; sourceTree = "<group>"; };
-		2012C9D02295D9A600BE1BF9 /* CanvasViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasViewController.swift; sourceTree = "<group>"; };
+		2012C9D02295D9A600BE1BF9 /* CanvasView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
 		2081D26322948C000005BB67 /* CodeDesign.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeDesign.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2081D26622948C000005BB67 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2081D26822948C000005BB67 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -81,7 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				2012C9CF2295D9A600BE1BF9 /* .gitkeep */,
-				2012C9D02295D9A600BE1BF9 /* CanvasViewController.swift */,
+				2012C9D02295D9A600BE1BF9 /* CanvasView.swift */,
 			);
 			path = Classes;
 			sourceTree = SOURCE_ROOT;
@@ -270,7 +270,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2081D26922948C000005BB67 /* ViewController.swift in Sources */,
-				2012C9D22295D9A700BE1BF9 /* CanvasViewController.swift in Sources */,
+				2012C9D22295D9A700BE1BF9 /* CanvasView.swift in Sources */,
 				2081D26722948C000005BB67 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
