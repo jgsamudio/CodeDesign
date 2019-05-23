@@ -178,24 +178,24 @@ private extension CanvasClipView {
     
 }
 
-protocol CanvasViewControllerDelegate: class {
+public protocol CanvasViewControllerDelegate: class {
     func didZoomIn(magnification: CGFloat)
     func didZoomOut(magnification: CGFloat)
     func didSelect(view: NSView)
 }
 
-class CanvasView: NSView {
+public class CanvasView: NSView {
     
     // MARK: - Public Variables
     
     /// Size of the canvas.
-    var canvasSize: NSSize = NSSize(width: 5000, height: 5000) {
+    public var canvasSize: NSSize = NSSize(width: 5000, height: 5000) {
         didSet {
             canvasClipView.documentView?.frame.size = canvasSize
         }
     }
     
-    weak var delegate: CanvasViewControllerDelegate?
+    public weak var delegate: CanvasViewControllerDelegate?
     
     // MARK: - Private Variables
     
@@ -227,27 +227,27 @@ class CanvasView: NSView {
     
     // MARK - Overriden Functions
     
-    override init(frame frameRect: NSRect) {
+    public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         setupView()
     }
     
-    required init?(coder decoder: NSCoder) {
+    public required init?(coder decoder: NSCoder) {
         super.init(coder: decoder)
         setupView()
     }
     
     // MARK: - Public Functions
     
-    func centerScrollView() {
+    public func centerScrollView() {
         canvasClipView.centerDocumentView()
     }
     
-    func scrollToCenter(of view: NSView) {
+    public func scrollToCenter(of view: NSView) {
         canvasClipView.scrollToCenter(of: view)
     }
     
-    func add(view: NSView) {
+    public func add(view: NSView) {
         scrollView.contentView.documentView?.addSubview(view)
     }
 }
@@ -321,27 +321,27 @@ private extension CanvasView {
 // MARK: - Keyboard Input
 extension CanvasView {
     
-    override var acceptsFirstResponder: Bool {
+    public override var acceptsFirstResponder: Bool {
         return true
     }
     
-    override func becomeFirstResponder() -> Bool {
+    public override func becomeFirstResponder() -> Bool {
         return true
     }
     
-    override func resignFirstResponder() -> Bool {
+    public override func resignFirstResponder() -> Bool {
         return true
     }
     
-    override func keyDown(with event: NSEvent) {
+    public override func keyDown(with event: NSEvent) {
         commandHandler.keyDown(code: Int(event.keyCode), modifierFlags: event.modifierFlags)
     }
     
-    override func keyUp(with event: NSEvent) {
+    public override func keyUp(with event: NSEvent) {
         commandHandler.keyUp(code: Int(event.keyCode), modifierFlags: event.modifierFlags)
     }
     
-    override func flagsChanged(with event: NSEvent) {
+    public override func flagsChanged(with event: NSEvent) {
         if event.modifierFlags.rawValue == 256 {
             canvasClipView.blockScrolling = false
         }
@@ -379,7 +379,7 @@ extension CanvasView {
 // MARK: - Mouse Input
 extension CanvasView {
  
-    override func mouseUp(with event: NSEvent) {
+    public override func mouseUp(with event: NSEvent) {
         if let documentView = canvasClipView.documentView {
             // TODO: Consider saving to memory for larger subview trees.
             for subview in documentView.subviews.reversed() {
@@ -396,7 +396,7 @@ extension CanvasView {
         }
     }
     
-    override func scrollWheel(with event: NSEvent) {
+    public override func scrollWheel(with event: NSEvent) {
         // TODO: Update Command Handler to handle modifier flags.
         let intersectedModifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
         if Int(intersectedModifierFlags.rawValue) == Int(NSEvent.ModifierFlags.command.rawValue) {
