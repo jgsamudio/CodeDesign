@@ -1,11 +1,16 @@
-use_frameworks!
+# Uncomment the next line to define a global platform for your project
+platform :osx, '10.14'
 
-target 'CodeDesign_Example' do
-  pod 'CodeDesign', :path => '../'
+target 'CodeDesignExample' do
+  # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+  use_frameworks!
 
-  target 'CodeDesign_Tests' do
+  # Pods for CodeDesignExample
+  pod 'CodeDesign', path: '../'
+
+  target 'CodeDesignExampleTests' do
     inherit! :search_paths
-
-    
+    # Pods for testing
   end
+
 end
