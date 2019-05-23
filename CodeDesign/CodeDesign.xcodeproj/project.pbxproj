@@ -440,7 +440,7 @@
 				CODE_SIGN_ENTITLEMENTS = CodeDesign/CodeDesign.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 5ZZ7W4SB26;
+				DEVELOPMENT_TEAM = FT4NWQ256Y;
 				INFOPLIST_FILE = CodeDesign/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -459,7 +459,7 @@
 				CODE_SIGN_ENTITLEMENTS = CodeDesign/CodeDesign.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 5ZZ7W4SB26;
+				DEVELOPMENT_TEAM = FT4NWQ256Y;
 				INFOPLIST_FILE = CodeDesign/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

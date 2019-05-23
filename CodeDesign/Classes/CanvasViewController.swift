@@ -184,7 +184,7 @@ protocol CanvasViewControllerDelegate: class {
     func didSelect(view: NSView)
 }
 
-class CanvasViewController: NSViewController {
+class CanvasView: NSView {
     
     // MARK: - Public Variables
     
@@ -227,29 +227,14 @@ class CanvasViewController: NSViewController {
     
     // MARK - Overriden Functions
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupDesign()
-        setupKeyboardEvents()
-        setupMouseEvents()
-        
-        // TODO: Remove from view did load.
-        let width: CGFloat = 375
-        let height: CGFloat = 667
-        let sampleView = NSView(frame: NSRect(x: centerPoint.x-(width/2), y: centerPoint.y-(height/2),
-                                              width: width, height: height))
-        sampleView.wantsLayer = true
-        sampleView.layer?.backgroundColor = CGColor.white
-        
-        let sampleSubView = NSView(frame: NSRect(x: centerPoint.x-50, y: centerPoint.y-50,
-                                              width: 100, height: 100))
-        sampleSubView.wantsLayer = true
-        sampleSubView.layer?.backgroundColor = CGColor.black
-        
-        add(view: sampleView)
-        add(view: sampleSubView)
-        
-        canvasClipView.scrollToCenter(of: sampleView)
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        setupView()
+    }
+    
+    required init?(coder decoder: NSCoder) {
+        super.init(coder: decoder)
+        setupView()
     }
     
     // MARK: - Public Functions
@@ -268,49 +253,73 @@ class CanvasViewController: NSViewController {
 }
 
 // MARK: - Private Functions
-private extension CanvasViewController {
+private extension CanvasView {
+    
+    func setupView() {
+        setupDesign()
+        setupKeyboardEvents()
+        setupMouseEvents()
+        
+        // TODO: Remove from view did load.
+        let width: CGFloat = 375
+        let height: CGFloat = 667
+        let sampleView = NSView(frame: NSRect(x: centerPoint.x-(width/2), y: centerPoint.y-(height/2),
+                                              width: width, height: height))
+        sampleView.wantsLayer = true
+        sampleView.layer?.backgroundColor = CGColor.white
+        
+        let sampleSubView = NSView(frame: NSRect(x: centerPoint.x-50, y: centerPoint.y-50,
+                                                 width: 100, height: 100))
+        sampleSubView.wantsLayer = true
+        sampleSubView.layer?.backgroundColor = CGColor.black
+        
+        add(view: sampleView)
+        add(view: sampleSubView)
+        
+        canvasClipView.scrollToCenter(of: sampleView)
+    }
     
     func setupDesign() {
-        view.addSubview(scrollView)
+        addSubview(scrollView)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = true
         
-        view.addConstraint(NSLayoutConstraint(item: view,
-                                              attribute: .top,
-                                              relatedBy: .equal,
-                                              toItem: scrollView,
-                                              attribute: .top,
-                                              multiplier: 1,
-                                              constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: view,
-                                              attribute: .bottom,
-                                              relatedBy: .equal,
-                                              toItem: scrollView,
-                                              attribute: .bottom,
-                                              multiplier: 1,
-                                              constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: view,
-                                              attribute: .leading,
-                                              relatedBy: .equal,
-                                              toItem: scrollView,
-                                              attribute: .leading,
-                                              multiplier: 1,
-                                              constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: view,
-                                              attribute: .trailing,
-                                              relatedBy: .equal,
-                                              toItem: scrollView,
-                                              attribute: .trailing,
-                                              multiplier: 1,
-                                              constant: 0))
+        addConstraint(NSLayoutConstraint(item: self,
+                                         attribute: .top,
+                                         relatedBy: .equal,
+                                         toItem: scrollView,
+                                         attribute: .top,
+                                         multiplier: 1,
+                                         constant: 0))
+        addConstraint(NSLayoutConstraint(item: self,
+                                         attribute: .bottom,
+                                         relatedBy: .equal,
+                                         toItem: scrollView,
+                                         attribute: .bottom,
+                                         multiplier: 1,
+                                         constant: 0))
+        addConstraint(NSLayoutConstraint(item: self,
+                                         attribute: .leading,
+                                         relatedBy: .equal,
+                                         toItem: scrollView,
+                                         attribute: .leading,
+                                         multiplier: 1,
+                                         constant: 0))
+        addConstraint(NSLayoutConstraint(item: self,
+                                         attribute: .trailing,
+                                         relatedBy: .equal,
+                                         toItem: scrollView,
+                                         attribute: .trailing,
+                                         multiplier: 1,
+                                         constant: 0))
         scrollView.contentView = canvasClipView
     }
 
 }
 
 // MARK: - Keyboard Input
-extension CanvasViewController {
+extension CanvasView {
     
     override var acceptsFirstResponder: Bool {
         return true
@@ -368,7 +377,7 @@ extension CanvasViewController {
 }
 
 // MARK: - Mouse Input
-extension CanvasViewController {
+extension CanvasView {
  
     override func mouseUp(with event: NSEvent) {
         if let documentView = canvasClipView.documentView {
@@ -417,7 +426,7 @@ extension CanvasViewController {
 }
 
 // MARK: - CommandHandlerDelegate
-extension CanvasViewController: CommandHandlerDelegate {
+extension CanvasView: CommandHandlerDelegate {
     
     func handleKeyboardCommand(_ command: KeyboardCommand) {
         switch command {
