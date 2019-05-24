@@ -1,6 +1,5 @@
 # CodeDesign
 
-[![CI Status](https://img.shields.io/travis/Jonathan Samudio/CodeDesign.svg?style=flat)](https://travis-ci.org/Jonathan Samudio/CodeDesign)
 [![Version](https://img.shields.io/cocoapods/v/CodeDesign.svg?style=flat)](https://cocoapods.org/pods/CodeDesign)
 [![License](https://img.shields.io/cocoapods/l/CodeDesign.svg?style=flat)](https://cocoapods.org/pods/CodeDesign)
 [![Platform](https://img.shields.io/cocoapods/p/CodeDesign.svg?style=flat)](https://cocoapods.org/pods/CodeDesign)
