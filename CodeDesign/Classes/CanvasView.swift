@@ -195,6 +195,16 @@ public class CanvasView: NSView {
         }
     }
     
+    public var centerPoint: NSPoint {
+        let xOrigin = (scrollView.contentView.documentRect.width) / 2
+        let yOrigin = (scrollView.contentView.documentRect.height) / 2
+        return NSPoint(x: xOrigin, y: yOrigin)
+    }
+    
+    public var documentSubviews: [NSView] {
+        return scrollView.contentView.documentView?.subviews ?? []
+    }
+    
     public weak var delegate: CanvasViewControllerDelegate?
     
     // MARK: - Private Variables
@@ -216,12 +226,6 @@ public class CanvasView: NSView {
         handler.delegate = self
         return handler
     }()
-    
-    private var centerPoint: NSPoint {
-        let xOrigin = (scrollView.contentView.documentRect.width) / 2
-        let yOrigin = (scrollView.contentView.documentRect.height) / 2
-        return NSPoint(x: xOrigin, y: yOrigin)
-    }
     
     private let magnificationIncrement: CGFloat = 0.25
     
@@ -250,6 +254,17 @@ public class CanvasView: NSView {
     public func add(view: NSView) {
         scrollView.contentView.documentView?.addSubview(view)
     }
+    
+    @discardableResult
+    public func addLayerView(rect: NSRect, backgroundColor: CGColor? = nil) -> NSView {
+        let layerView = NSView(frame: rect)
+        if let backgroundColor = backgroundColor {
+            layerView.wantsLayer = true
+            layerView.layer?.backgroundColor = backgroundColor
+        }
+        add(view: layerView)
+        return layerView
+    }
 }
 
 // MARK: - Private Functions
@@ -259,24 +274,7 @@ private extension CanvasView {
         setupDesign()
         setupKeyboardEvents()
         setupMouseEvents()
-        
-        // TODO: Remove from view did load.
-        let width: CGFloat = 375
-        let height: CGFloat = 667
-        let sampleView = NSView(frame: NSRect(x: centerPoint.x-(width/2), y: centerPoint.y-(height/2),
-                                              width: width, height: height))
-        sampleView.wantsLayer = true
-        sampleView.layer?.backgroundColor = CGColor.white
-        
-        let sampleSubView = NSView(frame: NSRect(x: centerPoint.x-50, y: centerPoint.y-50,
-                                                 width: 100, height: 100))
-        sampleSubView.wantsLayer = true
-        sampleSubView.layer?.backgroundColor = CGColor.black
-        
-        add(view: sampleView)
-        add(view: sampleSubView)
-        
-        canvasClipView.scrollToCenter(of: sampleView)
+        centerScrollView()
     }
     
     func setupDesign() {
