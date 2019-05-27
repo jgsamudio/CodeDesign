@@ -141,6 +141,14 @@ private extension CanvasView {
                                          constant: 0))
         scrollView.contentView = canvasClipView
     }
+    
+    func applyTestView() {
+        let view = addLayerView(rect: NSRect(x: 100, y: 100, width: 200, height: 200), backgroundColor: CGColor.black)
+        let subview = NSView(frame: NSRect(x: 100, y: 100, width: 50, height: 50))
+        subview.wantsLayer = true
+        subview.layer?.backgroundColor = CGColor.white
+        view.addSubview(subview)
+    }
 
 }
 
@@ -242,7 +250,9 @@ extension CanvasView {
         for subview in subviews.reversed() {
             if subview.frame.contains(point) {
                 if !subview.subviews.isEmpty {
-                    let childView = viewSelected(point: point, subviews: subview.subviews)
+                    let adjustedPoint = CGPoint(x: abs(point.x - subview.frame.origin.x),
+                                                y: abs(point.y - subview.frame.origin.y))
+                    let childView = viewSelected(point: adjustedPoint, subviews: subview.subviews)
                     return childView == nil ? subview : childView
                 }
                 return subview
