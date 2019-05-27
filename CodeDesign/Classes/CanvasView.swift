@@ -79,6 +79,10 @@ public class CanvasView: NSView {
         scrollView.contentView.documentView?.addSubview(view)
     }
     
+    public func resetCanvas() {
+        scrollView.contentView.documentView?.subviews.forEach { $0.removeFromSuperview() }
+    }
+    
     @discardableResult
     public func addLayerView(rect: NSRect, backgroundColor: CGColor? = nil) -> NSView {
         let layerView = NSView(frame: rect)
@@ -204,16 +208,15 @@ extension CanvasView {
     public override func mouseUp(with event: NSEvent) {
         if let documentView = canvasClipView.documentView {
             // TODO: Consider saving to memory for larger subview trees.
-            for subview in documentView.subviews.reversed() {
-                let xClickPoint = (event.locationInWindow.x / scrollView.magnification) +
-                    canvasClipView.documentVisibleRect.origin.x
-                let yClickPoint = (event.locationInWindow.y / scrollView.magnification) +
-                    canvasClipView.documentVisibleRect.origin.y
-                if subview.frame.contains(CGPoint(x: xClickPoint, y: yClickPoint)) {
-                    print(subview.frame)
-                    delegate?.didSelect(view: subview)
-                    return
-                }
+            let xClickPoint = (event.locationInWindow.x / scrollView.magnification) +
+                canvasClipView.documentVisibleRect.origin.x
+            let yClickPoint = (event.locationInWindow.y / scrollView.magnification) +
+                canvasClipView.documentVisibleRect.origin.y
+            let selectedPoint = CGPoint(x: xClickPoint, y: yClickPoint)
+            
+            if let view = viewSelected(point: selectedPoint, subviews: documentView.subviews) {
+                print(view.frame)
+                delegate?.didSelect(view: view)
             }
         }
     }
@@ -233,6 +236,19 @@ extension CanvasView {
                 scrollView.magnification += magnificationIncrement
             }
         }
+    }
+    
+    func viewSelected(point: CGPoint, subviews: [NSView]) -> NSView? {
+        for subview in subviews.reversed() {
+            if subview.frame.contains(point) {
+                if !subview.subviews.isEmpty {
+                    let childView = viewSelected(point: point, subviews: subview.subviews)
+                    return childView == nil ? subview : childView
+                }
+                return subview
+            }
+        }
+        return nil
     }
     
     func setupMouseEvents() {
